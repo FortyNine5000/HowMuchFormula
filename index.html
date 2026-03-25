@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How Much Formula — Feeding Pump Rate Calculator</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f8f9fa;
+      color: #1a1a2e;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 440px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    header h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #1a1a2e;
+      letter-spacing: -0.5px;
+    }
+
+    header p {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: #6b7280;
+      line-height: 1.5;
+    }
+
+    .field {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    input[type="number"] {
+      flex: 1;
+      padding: 12px 14px;
+      font-size: 1.1rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      background: #f9fafb;
+      color: #1a1a2e;
+      outline: none;
+      transition: border-color 0.15s;
+      -moz-appearance: textfield;
+    }
+
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+    }
+
+    input[type="number"]:focus {
+      border-color: #4f46e5;
+      background: #fff;
+    }
+
+    .toggle {
+      display: flex;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .toggle button {
+      flex: 1;
+      padding: 12px 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border: none;
+      background: #f9fafb;
+      color: #6b7280;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .toggle button.active {
+      background: #4f46e5;
+      color: #fff;
+    }
+
+    .toggle button:first-child {
+      border-right: 1px solid #e5e7eb;
+    }
+
+    .calc-btn {
+      width: 100%;
+      padding: 14px;
+      margin-top: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      background: #4f46e5;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      letter-spacing: 0.02em;
+    }
+
+    .calc-btn:hover { background: #4338ca; }
+    .calc-btn:active { transform: scale(0.98); }
+
+    .result {
+      margin-top: 24px;
+      padding: 20px;
+      background: #eef2ff;
+      border-radius: 12px;
+      text-align: center;
+      display: none;
+    }
+
+    .result.visible { display: block; }
+
+    .result .rate {
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: #4f46e5;
+      line-height: 1;
+    }
+
+    .result .unit {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #6366f1;
+      margin-top: 4px;
+    }
+
+    .result .note {
+      margin-top: 10px;
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+
+    .error {
+      margin-top: 16px;
+      padding: 12px 16px;
+      background: #fef2f2;
+      border-radius: 10px;
+      color: #dc2626;
+      font-size: 0.875rem;
+      font-weight: 500;
+      display: none;
+    }
+
+    .error.visible { display: block; }
+
+    footer {
+      margin-top: 32px;
+      font-size: 0.78rem;
+      color: #9ca3af;
+      text-align: center;
+      max-width: 440px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <header>
+      <h1>Feeding Pump Calculator</h1>
+      <p>Enter the amount of formula and the time to run — get the rate to enter on your pump.</p>
+    </header>
+
+    <div class="field">
+      <label>Formula Volume (mL)</label>
+      <input type="number" id="volume" min="1" step="1" placeholder="e.g. 240">
+    </div>
+
+    <div class="field">
+      <label>Run Time</label>
+      <div class="input-row">
+        <input type="number" id="duration" min="1" step="1" placeholder="e.g. 60">
+        <div class="toggle">
+          <button id="btn-min" class="active" onclick="setUnit('min')">min</button>
+          <button id="btn-hr" onclick="setUnit('hr')">hr</button>
+        </div>
+      </div>
+    </div>
+
+    <button class="calc-btn" onclick="calculate()">Calculate Rate</button>
+
+    <div class="error" id="error"></div>
+
+    <div class="result" id="result">
+      <div class="rate" id="rate-value">—</div>
+      <div class="unit">mL / hour</div>
+      <div class="note">Enter this rate on your feeding pump (e.g. Infinity, Kangaroo).</div>
+    </div>
+  </div>
+
+  <footer>
+    This tool is for reference only. Always follow your care team's instructions for feeding volumes and rates.
+  </footer>
+
+  <script>
+    let unit = 'min';
+
+    function setUnit(u) {
+      unit = u;
+      document.getElementById('btn-min').classList.toggle('active', u === 'min');
+      document.getElementById('btn-hr').classList.toggle('active', u === 'hr');
+    }
+
+    function calculate() {
+      const volInput = document.getElementById('volume');
+      const durInput = document.getElementById('duration');
+      const errorEl = document.getElementById('error');
+      const resultEl = document.getElementById('result');
+      const rateEl = document.getElementById('rate-value');
+
+      const vol = parseFloat(volInput.value);
+      const dur = parseFloat(durInput.value);
+
+      errorEl.classList.remove('visible');
+      resultEl.classList.remove('visible');
+
+      if (!vol || !dur || vol <= 0 || dur <= 0) {
+        errorEl.textContent = 'Please enter a valid volume and time.';
+        errorEl.classList.add('visible');
+        return;
+      }
+
+      const durationInHours = unit === 'min' ? dur / 60 : dur;
+      const rate = vol / durationInHours;
+
+      rateEl.textContent = Math.round(rate * 10) / 10;
+      resultEl.classList.add('visible');
+    }
+
+    // Allow Enter key to trigger calculation
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') calculate();
+    });
+  </script>
+
+</body>
+</html>
